@@ -1,4 +1,5 @@
-frontend terminal -  finance-manager-client % npm run dev
+frontend terminal - justinpowers@Justins-MBP finance-manager-client % npm run dev
 
-Backend terminal - FinanceManagerApi dotnet run
+Baackend terminal - Justins-MBP:FinanceManagerApi justinpowers$ dotnet run
 
+Two different folders. 
