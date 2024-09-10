@@ -18,5 +18,12 @@ namespace FinanceManagerApi.Models
         public DateTime Date { get; set; }  
 
         public string? Category { get; set; }
+
+        public bool recurringExpense { get; set; } = false;
+
+        public string? RecurrenceInterval { get; set; } 
+
+        [DataType(DataType.DateTime)]
+        public DateTime? RecurrenceEndDate { get; set; } 
     }
 }

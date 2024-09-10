@@ -1,5 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { getExpenses, addExpense, updateExpense, deleteExpense } from '../services/api';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Container,
+  Card,
+  CardContent,
+  CardActions,
+  Button,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Checkbox,
+  FormControlLabel,
+  Grid,
+  IconButton,
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 
 interface Expense {
   id: number;
@@ -7,6 +28,9 @@ interface Expense {
   amount: number;
   date: string;
   category: string;
+  recurringExpense: boolean;
+  recurrenceInterval?: string;
+  recurrenceEndDate?: string;
 }
 
 const Expenses: React.FC = () => {
@@ -16,6 +40,7 @@ const Expenses: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [useCustomCategory, setUseCustomCategory] = useState(false);
   const [customCategory, setCustomCategory] = useState<string>('');
+  const [isRecurring, setIsRecurring] = useState(false);
 
   const predefinedCategories = ['Food', 'Transport', 'Utilities', 'Housing'];
 
@@ -34,28 +59,34 @@ const Expenses: React.FC = () => {
 
   const handleAddOrUpdateExpense = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', isEditing ? 'Editing' : 'Adding', editingExpense || newExpense);
+    const category = useCustomCategory ? customCategory : isEditing && editingExpense ? editingExpense.category : newExpense.category;
+
+    if (!category) {
+      alert('Please select or enter a category.');
+      return;
+    }
+
+    const formattedExpense = {
+      ...(isEditing && editingExpense ? editingExpense : newExpense),
+      date: isEditing && editingExpense
+        ? new Date(editingExpense.date).toISOString()
+        : newExpense.date
+          ? new Date(newExpense.date).toISOString()
+          : '',
+      recurrenceEndDate:
+        (isEditing && editingExpense && editingExpense.recurrenceEndDate)
+          ? new Date(editingExpense.recurrenceEndDate).toISOString()
+          : (newExpense.recurrenceEndDate)
+            ? new Date(newExpense.recurrenceEndDate).toISOString()
+            : undefined,
+      category,
+    };
 
     try {
-      const category = useCustomCategory ? customCategory : isEditing && editingExpense ? editingExpense.category : newExpense.category;
-
-      if (!category) {
-        alert('Please select or enter a category.');
-        return;
-      }
-
       if (isEditing && editingExpense) {
-        await updateExpense(editingExpense.id, {
-          ...editingExpense,
-          category: category,
-        });
-        console.log('Expense updated:', editingExpense);
+        await updateExpense(editingExpense.id, formattedExpense);
       } else {
-        await addExpense({
-          ...newExpense,
-          category: category,
-        });
-        console.log('Expense added:', newExpense);
+        await addExpense(formattedExpense);
       }
 
       setEditingExpense(null);
@@ -63,7 +94,7 @@ const Expenses: React.FC = () => {
       setCustomCategory('');
       setIsEditing(false);
       setUseCustomCategory(false);
-      fetchExpenses(); // Refresh the expense list
+      fetchExpenses();
     } catch (error) {
       console.error('Error adding or updating expense:', error);
     }
@@ -72,15 +103,14 @@ const Expenses: React.FC = () => {
   const handleEditClick = (expense: Expense) => {
     setEditingExpense(expense);
     setIsEditing(true);
-    setUseCustomCategory(!predefinedCategories.includes(expense.category)); // If category is not in predefined list, use custom
-    setCustomCategory(!predefinedCategories.includes(expense.category) ? expense.category : ''); // Set custom category if available
+    setUseCustomCategory(!predefinedCategories.includes(expense.category));
+    setCustomCategory(!predefinedCategories.includes(expense.category) ? expense.category : '');
   };
 
   const handleDeleteClick = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this expense?')) {
       try {
         await deleteExpense(id);
-        console.log('Expense deleted:', id);
         fetchExpenses();
       } catch (error) {
         console.error('Error deleting expense:', error);
@@ -97,10 +127,11 @@ const Expenses: React.FC = () => {
     }
   };
 
-  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    if (e.target.value === 'Other') {
+  const handleCategoryChange = (e: React.ChangeEvent<{ value: unknown }>) => {
+    const value = e.target.value as string;
+    if (value === 'Other') {
       setUseCustomCategory(true);
-      setCustomCategory(''); // Reset custom category input when selecting "Other"
+      setCustomCategory('');
       if (isEditing && editingExpense) {
         setEditingExpense({ ...editingExpense, category: '' });
       } else {
@@ -108,78 +139,167 @@ const Expenses: React.FC = () => {
       }
     } else {
       setUseCustomCategory(false);
-      handleInputChange(e);
+      handleInputChange(e as React.ChangeEvent<HTMLInputElement | HTMLSelectElement>);
     }
   };
 
   return (
-    <div>
-      <h1>Expenses</h1>
-      <ul>
-        {expenses.map((expense) => (
-          <li key={expense.id}>
-            {expense.name} - ${expense.amount} on {new Date(expense.date).toLocaleDateString()} ({expense.category})
-            <button onClick={() => handleEditClick(expense)}>Edit</button>
-            <button onClick={() => handleDeleteClick(expense.id)}>Delete</button>
-          </li>
-        ))}
-      </ul>
+    <>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Finance Manager
+          </Typography>
+        </Toolbar>
+      </AppBar>
 
-      <h2>{isEditing ? 'Edit Expense' : 'Add New Expense'}</h2>
-      <form onSubmit={handleAddOrUpdateExpense}>
-        <input
-          type="text"
-          name="name"
-          placeholder="Name"
-          value={isEditing && editingExpense ? editingExpense.name : newExpense.name || ''}
-          onChange={handleInputChange}
-          required
-        />
-        <input
-          type="number"
-          name="amount"
-          placeholder="Amount"
-          value={isEditing && editingExpense ? editingExpense.amount : newExpense.amount || ''}
-          onChange={handleInputChange}
-          required
-        />
-        <input
-          type="date"
-          name="date"
-          value={isEditing && editingExpense ? editingExpense.date.split('T')[0] : newExpense.date || ''}
-          onChange={handleInputChange}
-          required
-        />
-        <select
-          name="category"
-          onChange={handleCategoryChange}
-          value={useCustomCategory ? 'Other' : isEditing && editingExpense ? editingExpense.category : newExpense.category || ''}
-          required={!useCustomCategory} // Make this required only if not using a custom category
-        >
-          <option value="">Select Category</option>
-          {predefinedCategories.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
+      <Container sx={{ marginTop: 4 }}>
+        <Grid container spacing={3}>
+          {expenses.map((expense) => (
+            <Grid item xs={12} sm={6} md={4} key={expense.id}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6">{expense.name}</Typography>
+                  <Typography color="text.secondary">${expense.amount}</Typography>
+                  <Typography color="text.secondary">{new Date(expense.date).toLocaleDateString()}</Typography>
+                  <Typography color="text.secondary">{expense.category}</Typography>
+                </CardContent>
+                <CardActions>
+                  <IconButton onClick={() => handleEditClick(expense)}>
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton onClick={() => handleDeleteClick(expense.id)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </CardActions>
+              </Card>
+            </Grid>
           ))}
-          <option value="Other">Other</option>
-        </select>
+        </Grid>
 
-        {useCustomCategory && (
-          <input
-            type="text"
-            name="customCategory"
-            placeholder="Enter Custom Category"
-            value={customCategory}
-            onChange={(e) => setCustomCategory(e.target.value)}
+        <Typography variant="h5" sx={{ marginTop: 4 }}>{isEditing ? 'Edit Expense' : 'Add New Expense'}</Typography>
+        <form onSubmit={handleAddOrUpdateExpense}>
+          <TextField
+            label="Name"
+            name="name"
+            value={isEditing && editingExpense ? editingExpense.name : newExpense.name || ''}
+            onChange={handleInputChange}
             required
+            fullWidth
+            margin="normal"
+            sx={{ backgroundColor: 'white' }}
           />
-        )}
+          <TextField
+            label="Amount"
+            name="amount"
+            type="number"
+            value={isEditing && editingExpense ? editingExpense.amount : newExpense.amount || ''}
+            onChange={handleInputChange}
+            required
+            fullWidth
+            margin="normal"
+            sx={{ backgroundColor: 'white' }}
+          />
+          <TextField
+            label="Date"
+            name="date"
+            type="date"
+            value={isEditing && editingExpense ? editingExpense.date.split('T')[0] : newExpense.date || ''}
+            onChange={handleInputChange}
+            required
+            fullWidth
+            margin="normal"
+            InputLabelProps={{ shrink: true }}
+            sx={{ backgroundColor: 'white' }}
+          />
+          <FormControl fullWidth margin="normal" sx={{ backgroundColor: 'white' }}>
+            <InputLabel>Category</InputLabel>
+            <Select
+              name="category"
+              onChange={handleCategoryChange}
+              value={useCustomCategory ? 'Other' : isEditing && editingExpense ? editingExpense.category : newExpense.category || ''}
+              required={!useCustomCategory}
+              sx={{ backgroundColor: 'white' }}
+            >
+              {predefinedCategories.map((cat) => (
+                <MenuItem key={cat} value={cat}>
+                  {cat}
+                </MenuItem>
+              ))}
+              <MenuItem value="Other">Other</MenuItem>
+            </Select>
+          </FormControl>
 
-        <button type="submit">{isEditing ? 'Update Expense' : 'Add Expense'}</button>
-        {isEditing && <button onClick={() => setIsEditing(false)}>Cancel</button>}
-      </form>
-    </div>
+          {useCustomCategory && (
+            <TextField
+              label="Custom Category"
+              name="customCategory"
+              value={customCategory}
+              onChange={(e) => setCustomCategory(e.target.value)}
+              required
+              fullWidth
+              margin="normal"
+              sx={{ backgroundColor: 'white' }}
+            />
+          )}
+
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={isEditing && editingExpense ? editingExpense.recurringExpense : newExpense.recurringExpense || false}
+                onChange={(e) => {
+                  if (isEditing && editingExpense) {
+                    setEditingExpense({ ...editingExpense, recurringExpense: e.target.checked });
+                  } else {
+                    setNewExpense({ ...newExpense, recurringExpense: e.target.checked });
+                  }
+                }}
+              />
+            }
+            label="Recurring Expense"
+          />
+
+          {((isEditing && editingExpense?.recurringExpense) || (!isEditing && newExpense.recurringExpense)) && (
+            <>
+              <FormControl fullWidth margin="normal" sx={{ backgroundColor: 'white' }}>
+                <InputLabel>Recurrence Interval</InputLabel>
+                <Select
+                  name="recurrenceInterval"
+                  onChange={handleInputChange}
+                  value={isEditing && editingExpense ? editingExpense.recurrenceInterval : newExpense.recurrenceInterval || ''}
+                  sx={{ backgroundColor: 'white' }}
+                >
+                  <MenuItem value="Daily">Daily</MenuItem>
+                  <MenuItem value="Weekly">Weekly</MenuItem>
+                  <MenuItem value="Monthly">Monthly</MenuItem>
+                  <MenuItem value="Yearly">Yearly</MenuItem>
+                </Select>
+              </FormControl>
+              <TextField
+                label="Recurrence End Date"
+                name="recurrenceEndDate"
+                type="date"
+                value={isEditing && editingExpense ? editingExpense.recurrenceEndDate?.split('T')[0] : newExpense.recurrenceEndDate || ''}
+                onChange={handleInputChange}
+                fullWidth
+                margin="normal"
+                InputLabelProps={{ shrink: true }}
+                sx={{ backgroundColor: 'white' }}
+              />
+            </>
+          )}
+
+          <Button type="submit" variant="contained" color="primary" fullWidth sx={{ marginTop: 2 }}>
+            {isEditing ? 'Update Expense' : 'Add Expense'}
+          </Button>
+          {isEditing && (
+            <Button variant="outlined" color="secondary" fullWidth sx={{ marginTop: 2 }} onClick={() => setIsEditing(false)}>
+              Cancel
+            </Button>
+          )}
+        </form>
+      </Container>
+    </>
   );
 };
 

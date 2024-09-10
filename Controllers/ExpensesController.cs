@@ -36,50 +36,88 @@ namespace FinanceManagerApi.Controllers
         }
 
         [HttpPost]
-    public async Task<ActionResult<Expense>> AddExpense([FromBody] Expense expense)
+public async Task<ActionResult<Expense>> AddExpense([FromBody] Expense expense)
+{
+    if (!ModelState.IsValid)
     {
-        if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+    }
+
+    
+    expense.Date = expense.Date.ToUniversalTime();
+
+    if (expense.recurringExpense && expense.RecurrenceEndDate.HasValue)
+    {
+        expense.RecurrenceEndDate = expense.RecurrenceEndDate.Value.ToUniversalTime();
+    }
+
+    _context.Expenses.Add(expense);
+
+    if (expense.recurringExpense && expense.RecurrenceInterval != null && expense.RecurrenceEndDate != null)
+    {
+        DateTime nextDate = expense.Date;
+        while (nextDate < expense.RecurrenceEndDate.Value)
         {
-        return BadRequest(ModelState); 
+            nextDate = nextDate.AddDays(GetRecurrenceIntervalDays(expense.RecurrenceInterval));
+            if (nextDate <= expense.RecurrenceEndDate.Value)
+            {
+                var newExpense = new Expense
+                {
+                    Name = expense.Name,
+                    Amount = expense.Amount,
+                    Category = expense.Category,
+                    Date = nextDate.ToUniversalTime(),
+                    recurringExpense = true,
+                    RecurrenceInterval = expense.RecurrenceInterval,
+                    RecurrenceEndDate = expense.RecurrenceEndDate.Value.ToUniversalTime()
+                };
+                _context.Expenses.Add(newExpense);
+            }
         }
+    }
 
-        
-        expense.Date = expense.Date.ToUniversalTime();
-
-        _context.Expenses.Add(expense);  
-        await _context.SaveChangesAsync();  
-
-        return CreatedAtAction(nameof(GetExpense), new { id = expense.Id }, expense);  
-        }
-
-        
+    await _context.SaveChangesAsync();
+    return CreatedAtAction(nameof(GetExpense), new { id = expense.Id }, expense);
+}
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutExpense(int id, Expense expense)
+        public async Task<IActionResult> PutExpense(int id, [FromBody] Expense expense)
         {
             if (id != expense.Id)
             {
                 return BadRequest();
             }
-            _context.Entry(expense).State = EntityState.Modified;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ExpenseExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return NoContent();
+            
+        expense.Date = expense.Date.ToUniversalTime();
+
+        if (expense.recurringExpense && expense.RecurrenceEndDate.HasValue)
+        {
+            expense.RecurrenceEndDate = expense.RecurrenceEndDate.Value.ToUniversalTime();
         }
+
+    _context.Entry(expense).State = EntityState.Modified;
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+        if (!ExpenseExists(id))
+        {
+            return NotFound();
+        }
+        else
+        {
+            throw;
+        }
+    }
+
+    return NoContent();
+}
+
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteExpense(int id)
@@ -98,6 +136,18 @@ namespace FinanceManagerApi.Controllers
         private bool ExpenseExists(int id)
         {
             return _context.Expenses.Any(e => e.Id == id);
+        }
+
+        private int GetRecurrenceIntervalDays(string interval)
+        {
+            return interval.ToLower() switch
+            {
+                "daily" => 1,
+                "weekly" => 7,
+                "biweekly" => 14,
+                "monthly" => 30,
+                _ => 0,
+            };
         }
     }
 }

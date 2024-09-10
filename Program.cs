@@ -8,12 +8,12 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<FinanceDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configure CORS
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
         policy => policy
-            .WithOrigins("http://localhost:5173")  // Allow requests from the frontend URL
+            .WithOrigins("http://localhost:5173")  // Allow requests from the frontend URL - Change to your frontend server
             .AllowAnyHeader()
             .AllowAnyMethod());
 });
@@ -23,7 +23,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Use CORS
+
 app.UseCors("AllowFrontend");
 
 // Configure the HTTP request pipeline.

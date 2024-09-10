@@ -108,3 +108,4 @@
 /Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/bin/Debug/net8.0/finance-manager-client/tsconfig.app.json
 /Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/bin/Debug/net8.0/finance-manager-client/tsconfig.json
 /Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/bin/Debug/net8.0/finance-manager-client/tsconfig.node.json
+/Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/obj/Debug/net8.0/FinanceManagerApi.sourcelink.json
