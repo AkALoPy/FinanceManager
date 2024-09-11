@@ -1,6 +1,4 @@
-## Screenshots
-
-Screenshot of the Finance Manager application:
+## Screenshot
 
 ![Finance Manager Screenshot](./Assets/FinanceManagerScreenshot.png)
 
