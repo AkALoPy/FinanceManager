@@ -1,3 +1,9 @@
+## Screenshots
+
+Screenshot of the Finance Manager application:
+
+![Finance Manager Screenshot](./Assets/FinanceManagerScreenshot.png)
+
 # Finance Manager
 
 Finance Manager is a web application designed to help users manage their expenses effectively. Users can add, edit, and delete expenses while also tracking recurring expenses with customizable recurrence intervals. The app is built using a React frontend with Material-UI for styling and a C# .NET backend with a PostgreSQL database for data storage.
