@@ -18,6 +18,8 @@ import {
   FormControlLabel,
   Grid,
   IconButton,
+  Box,
+  SelectChangeEvent,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -40,7 +42,6 @@ const Expenses: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [useCustomCategory, setUseCustomCategory] = useState(false);
   const [customCategory, setCustomCategory] = useState<string>('');
-  const [isRecurring, setIsRecurring] = useState(false);
 
   const predefinedCategories = ['Food', 'Transport', 'Utilities', 'Housing'];
 
@@ -118,7 +119,7 @@ const Expenses: React.FC = () => {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (isEditing && editingExpense) {
       setEditingExpense({ ...editingExpense, [name]: name === 'amount' ? parseFloat(value) : value });
@@ -127,8 +128,8 @@ const Expenses: React.FC = () => {
     }
   };
 
-  const handleCategoryChange = (e: React.ChangeEvent<{ value: unknown }>) => {
-    const value = e.target.value as string;
+  const handleCategoryChange = (e: SelectChangeEvent<string>) => {
+    const value = e.target.value;
     if (value === 'Other') {
       setUseCustomCategory(true);
       setCustomCategory('');
@@ -139,7 +140,11 @@ const Expenses: React.FC = () => {
       }
     } else {
       setUseCustomCategory(false);
-      handleInputChange(e as React.ChangeEvent<HTMLInputElement | HTMLSelectElement>);
+      if (isEditing && editingExpense) {
+        setEditingExpense({ ...editingExpense, category: value });
+      } else {
+        setNewExpense((prev) => ({ ...prev, category: value }));
+      }
     }
   };
 
@@ -153,22 +158,22 @@ const Expenses: React.FC = () => {
         </Toolbar>
       </AppBar>
 
-      <Container sx={{ marginTop: 4 }}>
+      <Container maxWidth="md" sx={{ marginTop: 4, paddingBottom: 4 }}>
         <Grid container spacing={3}>
           {expenses.map((expense) => (
             <Grid item xs={12} sm={6} md={4} key={expense.id}>
-              <Card>
+              <Card sx={{ backgroundColor: '#f5f5f5', borderRadius: 2 }}>
                 <CardContent>
-                  <Typography variant="h6">{expense.name}</Typography>
+                  <Typography variant="h6" gutterBottom>{expense.name}</Typography>
                   <Typography color="text.secondary">${expense.amount}</Typography>
                   <Typography color="text.secondary">{new Date(expense.date).toLocaleDateString()}</Typography>
                   <Typography color="text.secondary">{expense.category}</Typography>
                 </CardContent>
                 <CardActions>
-                  <IconButton onClick={() => handleEditClick(expense)}>
+                  <IconButton onClick={() => handleEditClick(expense)} color="primary">
                     <EditIcon />
                   </IconButton>
-                  <IconButton onClick={() => handleDeleteClick(expense.id)}>
+                  <IconButton onClick={() => handleDeleteClick(expense.id)} color="secondary">
                     <DeleteIcon />
                   </IconButton>
                 </CardActions>
@@ -177,127 +182,129 @@ const Expenses: React.FC = () => {
           ))}
         </Grid>
 
-        <Typography variant="h5" sx={{ marginTop: 4 }}>{isEditing ? 'Edit Expense' : 'Add New Expense'}</Typography>
-        <form onSubmit={handleAddOrUpdateExpense}>
-          <TextField
-            label="Name"
-            name="name"
-            value={isEditing && editingExpense ? editingExpense.name : newExpense.name || ''}
-            onChange={handleInputChange}
-            required
-            fullWidth
-            margin="normal"
-            sx={{ backgroundColor: 'white' }}
-          />
-          <TextField
-            label="Amount"
-            name="amount"
-            type="number"
-            value={isEditing && editingExpense ? editingExpense.amount : newExpense.amount || ''}
-            onChange={handleInputChange}
-            required
-            fullWidth
-            margin="normal"
-            sx={{ backgroundColor: 'white' }}
-          />
-          <TextField
-            label="Date"
-            name="date"
-            type="date"
-            value={isEditing && editingExpense ? editingExpense.date.split('T')[0] : newExpense.date || ''}
-            onChange={handleInputChange}
-            required
-            fullWidth
-            margin="normal"
-            InputLabelProps={{ shrink: true }}
-            sx={{ backgroundColor: 'white' }}
-          />
-          <FormControl fullWidth margin="normal" sx={{ backgroundColor: 'white' }}>
-            <InputLabel>Category</InputLabel>
-            <Select
-              name="category"
-              onChange={handleCategoryChange}
-              value={useCustomCategory ? 'Other' : isEditing && editingExpense ? editingExpense.category : newExpense.category || ''}
-              required={!useCustomCategory}
-              sx={{ backgroundColor: 'white' }}
-            >
-              {predefinedCategories.map((cat) => (
-                <MenuItem key={cat} value={cat}>
-                  {cat}
-                </MenuItem>
-              ))}
-              <MenuItem value="Other">Other</MenuItem>
-            </Select>
-          </FormControl>
-
-          {useCustomCategory && (
+        <Box sx={{ marginTop: 4, padding: 3, backgroundColor: '#fff', borderRadius: 2, boxShadow: 2 }}>
+          <Typography variant="h5" sx={{ textAlign: 'center', marginBottom: 3 }}>{isEditing ? 'Edit Expense' : 'Add New Expense'}</Typography>
+          <form onSubmit={handleAddOrUpdateExpense}>
             <TextField
-              label="Custom Category"
-              name="customCategory"
-              value={customCategory}
-              onChange={(e) => setCustomCategory(e.target.value)}
+              label="Name"
+              name="name"
+              value={isEditing && editingExpense ? editingExpense.name : newExpense.name || ''}
+              onChange={handleInputChange}
               required
               fullWidth
               margin="normal"
               sx={{ backgroundColor: 'white' }}
             />
-          )}
+            <TextField
+              label="Amount"
+              name="amount"
+              type="number"
+              value={isEditing && editingExpense ? editingExpense.amount : newExpense.amount || ''}
+              onChange={handleInputChange}
+              required
+              fullWidth
+              margin="normal"
+              sx={{ backgroundColor: 'white' }}
+            />
+            <TextField
+              label="Date"
+              name="date"
+              type="date"
+              value={isEditing && editingExpense ? editingExpense.date.split('T')[0] : newExpense.date || ''}
+              onChange={handleInputChange}
+              required
+              fullWidth
+              margin="normal"
+              InputLabelProps={{ shrink: true }}
+              sx={{ backgroundColor: 'white' }}
+            />
+            <FormControl fullWidth margin="normal" sx={{ backgroundColor: 'white' }}>
+              <InputLabel>Category</InputLabel>
+              <Select
+                name="category"
+                onChange={handleCategoryChange}
+                value={useCustomCategory ? 'Other' : isEditing && editingExpense ? editingExpense.category : newExpense.category || ''}
+                required={!useCustomCategory}
+                sx={{ backgroundColor: 'white' }}
+              >
+                {predefinedCategories.map((cat) => (
+                  <MenuItem key={cat} value={cat}>
+                    {cat}
+                  </MenuItem>
+                ))}
+                <MenuItem value="Other">Other</MenuItem>
+              </Select>
+            </FormControl>
 
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={isEditing && editingExpense ? editingExpense.recurringExpense : newExpense.recurringExpense || false}
-                onChange={(e) => {
-                  if (isEditing && editingExpense) {
-                    setEditingExpense({ ...editingExpense, recurringExpense: e.target.checked });
-                  } else {
-                    setNewExpense({ ...newExpense, recurringExpense: e.target.checked });
-                  }
-                }}
-              />
-            }
-            label="Recurring Expense"
-          />
-
-          {((isEditing && editingExpense?.recurringExpense) || (!isEditing && newExpense.recurringExpense)) && (
-            <>
-              <FormControl fullWidth margin="normal" sx={{ backgroundColor: 'white' }}>
-                <InputLabel>Recurrence Interval</InputLabel>
-                <Select
-                  name="recurrenceInterval"
-                  onChange={handleInputChange}
-                  value={isEditing && editingExpense ? editingExpense.recurrenceInterval : newExpense.recurrenceInterval || ''}
-                  sx={{ backgroundColor: 'white' }}
-                >
-                  <MenuItem value="Daily">Daily</MenuItem>
-                  <MenuItem value="Weekly">Weekly</MenuItem>
-                  <MenuItem value="Monthly">Monthly</MenuItem>
-                  <MenuItem value="Yearly">Yearly</MenuItem>
-                </Select>
-              </FormControl>
+            {useCustomCategory && (
               <TextField
-                label="Recurrence End Date"
-                name="recurrenceEndDate"
-                type="date"
-                value={isEditing && editingExpense ? editingExpense.recurrenceEndDate?.split('T')[0] : newExpense.recurrenceEndDate || ''}
-                onChange={handleInputChange}
+                label="Custom Category"
+                name="customCategory"
+                value={customCategory}
+                onChange={(e) => setCustomCategory(e.target.value)}
+                required
                 fullWidth
                 margin="normal"
-                InputLabelProps={{ shrink: true }}
                 sx={{ backgroundColor: 'white' }}
               />
-            </>
-          )}
+            )}
 
-          <Button type="submit" variant="contained" color="primary" fullWidth sx={{ marginTop: 2 }}>
-            {isEditing ? 'Update Expense' : 'Add Expense'}
-          </Button>
-          {isEditing && (
-            <Button variant="outlined" color="secondary" fullWidth sx={{ marginTop: 2 }} onClick={() => setIsEditing(false)}>
-              Cancel
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={isEditing && editingExpense ? editingExpense.recurringExpense : newExpense.recurringExpense || false}
+                  onChange={(e) => {
+                    if (isEditing && editingExpense) {
+                      setEditingExpense({ ...editingExpense, recurringExpense: e.target.checked });
+                    } else {
+                      setNewExpense({ ...newExpense, recurringExpense: e.target.checked });
+                    }
+                  }}
+                />
+              }
+              label="Recurring Expense"
+            />
+
+            {((isEditing && editingExpense?.recurringExpense) || (!isEditing && newExpense.recurringExpense)) && (
+              <>
+                <FormControl fullWidth margin="normal" sx={{ backgroundColor: 'white' }}>
+                  <InputLabel>Recurrence Interval</InputLabel>
+                  <Select
+                    name="recurrenceInterval"
+                    onChange={(e) => handleInputChange(e as React.ChangeEvent<HTMLInputElement>)}
+                    value={isEditing && editingExpense ? editingExpense.recurrenceInterval : newExpense.recurrenceInterval || ''}
+                    sx={{ backgroundColor: 'white' }}
+                  >
+                    <MenuItem value="Daily">Daily</MenuItem>
+                    <MenuItem value="Weekly">Weekly</MenuItem>
+                    <MenuItem value="Monthly">Monthly</MenuItem>
+                    <MenuItem value="Yearly">Yearly</MenuItem>
+                  </Select>
+                </FormControl>
+                <TextField
+                  label="Recurrence End Date"
+                  name="recurrenceEndDate"
+                  type="date"
+                  value={isEditing && editingExpense ? editingExpense.recurrenceEndDate?.split('T')[0] : newExpense.recurrenceEndDate || ''}
+                  onChange={handleInputChange}
+                  fullWidth
+                  margin="normal"
+                  InputLabelProps={{ shrink: true }}
+                  sx={{ backgroundColor: 'white' }}
+                />
+              </>
+            )}
+
+            <Button type="submit" variant="contained" color="primary" fullWidth sx={{ marginTop: 2 }}>
+              {isEditing ? 'Update Expense' : 'Add Expense'}
             </Button>
-          )}
-        </form>
+            {isEditing && (
+              <Button variant="outlined" color="secondary" fullWidth sx={{ marginTop: 2 }} onClick={() => setIsEditing(false)}>
+                Cancel
+              </Button>
+            )}
+          </form>
+        </Box>
       </Container>
     </>
   );
