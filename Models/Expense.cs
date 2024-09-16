@@ -25,5 +25,6 @@ namespace FinanceManagerApi.Models
 
         [DataType(DataType.DateTime)]
         public DateTime? RecurrenceEndDate { get; set; } 
+
     }
 }

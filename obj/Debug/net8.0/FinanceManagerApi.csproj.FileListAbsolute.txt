@@ -1,5 +1,10 @@
 /Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/bin/Debug/net8.0/appsettings.Development.json
 /Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/bin/Debug/net8.0/appsettings.json
+/Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/bin/Debug/net8.0/finance-manager-client/package-lock.json
+/Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/bin/Debug/net8.0/finance-manager-client/package.json
+/Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/bin/Debug/net8.0/finance-manager-client/tsconfig.app.json
+/Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/bin/Debug/net8.0/finance-manager-client/tsconfig.json
+/Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/bin/Debug/net8.0/finance-manager-client/tsconfig.node.json
 /Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/bin/Debug/net8.0/FinanceManagerApi
 /Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/bin/Debug/net8.0/FinanceManagerApi.deps.json
 /Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/bin/Debug/net8.0/FinanceManagerApi.runtimeconfig.json
@@ -89,6 +94,7 @@
 /Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/obj/Debug/net8.0/FinanceManagerApi.csproj.CoreCompileInputs.cache
 /Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/obj/Debug/net8.0/FinanceManagerApi.MvcApplicationPartsAssemblyInfo.cs
 /Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/obj/Debug/net8.0/FinanceManagerApi.MvcApplicationPartsAssemblyInfo.cache
+/Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/obj/Debug/net8.0/FinanceManagerApi.sourcelink.json
 /Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/obj/Debug/net8.0/staticwebassets.build.json
 /Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/obj/Debug/net8.0/staticwebassets.development.json
 /Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/obj/Debug/net8.0/staticwebassets/msbuild.FinanceManagerApi.Microsoft.AspNetCore.StaticWebAssets.props
@@ -103,9 +109,3 @@
 /Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/obj/Debug/net8.0/FinanceManagerApi.pdb
 /Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/obj/Debug/net8.0/FinanceManagerApi.genruntimeconfig.cache
 /Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/obj/Debug/net8.0/ref/FinanceManagerApi.dll
-/Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/bin/Debug/net8.0/finance-manager-client/package-lock.json
-/Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/bin/Debug/net8.0/finance-manager-client/package.json
-/Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/bin/Debug/net8.0/finance-manager-client/tsconfig.app.json
-/Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/bin/Debug/net8.0/finance-manager-client/tsconfig.json
-/Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/bin/Debug/net8.0/finance-manager-client/tsconfig.node.json
-/Users/justinpowers/Desktop/Software Engineering/LearningCSharp/FinanceManagerApi/obj/Debug/net8.0/FinanceManagerApi.sourcelink.json

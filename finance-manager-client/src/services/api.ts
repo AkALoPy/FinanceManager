@@ -5,7 +5,7 @@ const api = axios.create({
   baseURL: 'http://localhost:5086/api', 
 });
 
-// Fetch all expenses
+
 // Get all expenses
 export const getExpenses = async () => {
     const response = await api.get('/expenses');
@@ -16,6 +16,17 @@ export const getExpenses = async () => {
   export const getExpense = async (id: number) => {
     const response = await api.get(`/expenses/${id}`);
     return response.data;
+  };
+  // Get the total expense amount for the month
+  export const getMonthlyTotal = async (): Promise<number> => {
+    try {
+      const response = await api.get('/expenses/monthly-total'); 
+      console.log('Monthly Total Response:', response.data); 
+      return response.data; 
+    } catch (error) {
+      console.error('Error fetching monthly total:', error);
+      throw error;
+    }
   };
   
   // Add a new expense

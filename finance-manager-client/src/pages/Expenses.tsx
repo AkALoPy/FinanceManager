@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getExpenses, addExpense, updateExpense, deleteExpense } from '../services/api';
+import { getExpenses, addExpense, updateExpense, deleteExpense, getMonthlyTotal } from '../services/api';
 import {
   AppBar,
   Toolbar,
@@ -44,19 +44,52 @@ const Expenses: React.FC = () => {
   const [customCategory, setCustomCategory] = useState<string>('');
 
   const predefinedCategories = ['Food', 'Transport', 'Utilities', 'Housing'];
+  const [monthlyTotal, setMonthlyTotal] = useState<number | null>(null);
 
   useEffect(() => {
     fetchExpenses();
+    fetchMonthlyTotal();
   }, []);
 
   const fetchExpenses = async () => {
     try {
       const data = await getExpenses();
       setExpenses(data);
+      calculateMonthlyTotal(data);
     } catch (error) {
       console.error('Error fetching expenses', error);
     }
   };
+
+  const fetchMonthlyTotal = async () => {
+    try {
+      const total = await getMonthlyTotal();
+      if (typeof total === 'number') {
+        setMonthlyTotal(total);
+      } else {
+        console.error('Monthly total is not a number:', total);
+      }
+    } catch (error) {
+      console.error('Error fetching monthly total:', error);
+    }
+  };
+
+  const calculateMonthlyTotal = (expenses: Expense[]) => {
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+
+    const total = expenses
+      .filter(
+        (expense) =>
+          new Date(expense.date).getMonth() === currentMonth &&
+          new Date(expense.date).getFullYear() === currentYear
+      )
+      .reduce((sum, expense) => sum + expense.amount, 0);
+
+    setMonthlyTotal(total);
+  };
+
+
 
   const handleAddOrUpdateExpense = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,11 +128,13 @@ const Expenses: React.FC = () => {
       setCustomCategory('');
       setIsEditing(false);
       setUseCustomCategory(false);
+
       fetchExpenses();
     } catch (error) {
       console.error('Error adding or updating expense:', error);
     }
   };
+
 
   const handleEditClick = (expense: Expense) => {
     setEditingExpense(expense);
@@ -118,6 +153,7 @@ const Expenses: React.FC = () => {
       }
     }
   };
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -152,12 +188,16 @@ const Expenses: React.FC = () => {
     <>
       <AppBar position="static">
         <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" textAlign={'center'} component="div" sx={{ flexGrow: 1 }}>
             Finance Manager
           </Typography>
         </Toolbar>
       </AppBar>
-
+      <Box sx={{ marginTop: 2, padding: 1, backgroundColor: '#fff', borderRadius: 1, boxShadow: 1 }}>
+      <Typography variant="h5" textAlign={'center'}>
+        Total Monthly Expenses: ${monthlyTotal !== null && monthlyTotal !== undefined && !isNaN(monthlyTotal) ? monthlyTotal.toFixed(2) : 'Loading...'}
+      </Typography>
+      </Box>
       <Container maxWidth="md" sx={{ marginTop: 4, paddingBottom: 4 }}>
         <Grid container spacing={3}>
           {expenses.map((expense) => (
