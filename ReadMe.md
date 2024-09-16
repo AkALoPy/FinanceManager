@@ -75,7 +75,7 @@ Before running the application, make sure you have the following installed:
 
     bash
 
-        npm start
+        npm run dev
 
 The frontend should now be running on http://localhost:5173.
 
