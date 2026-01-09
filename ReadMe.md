@@ -34,7 +34,7 @@ Before running the application, make sure you have the following installed:
 
 1. **Clone the repository:**
 
-   ```bash
+   ```
    git clone https://github.com/AkALoPy/FinanceManager.git
    cd FinanceManager/FinanceManagerApi
 
@@ -45,13 +45,10 @@ Before running the application, make sure you have the following installed:
 
 ### Run the migrations to set up the database schema:
 
-    bash
 
         dotnet ef database update
 
     Run the backend server:
-
-    bash
 
         dotnet run
 
@@ -61,19 +58,13 @@ Before running the application, make sure you have the following installed:
 
     Navigate to the client directory
 
-    bash
-
         cd finance-manager-client
 
 ## Install dependencies:
 
-    bash
-
         npm install
 
 ## Start the React development server:
-
-    bash
 
         npm run dev
 
